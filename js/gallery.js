@@ -1,4 +1,3 @@
-
 const images = [
   {
     preview:
