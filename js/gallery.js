@@ -65,42 +65,28 @@ const images = [
   },
 ];
 
-// Отримуємо посилання на елементи DOM
-
 const gallery = document.querySelector('.gallery');
-const modal = document.querySelector('.modal');
-const modalImage = document.querySelector('.modal-image');
-const modalCloseBtn = document.querySelector('.modal-close');
-
 
 // Функція для створення галереї на основі масиву зображень
-
 function createGallery(images) {
-  return images.map(image => {
-  // Створюємо елемент li для кожного зображення
+    return images.map(image => {
         const listItem = document.createElement('li');
         listItem.classList.add('gallery-item');
 
-    // Створюємо посилання для зображення
         const linkElement = document.createElement('a');
         linkElement.classList.add('gallery-link');
         linkElement.href = image.original;
 
-    // Створюємо тег img для мініатюри зображення
         const imageElement = document.createElement('img');
         imageElement.classList.add('gallery-image');
         imageElement.src = image.preview;
         imageElement.alt = image.description;
-      
-    // Додаємо стилі для визначення ширини та висоти зображень
         imageElement.style.width = '360px';
         imageElement.style.height = '200px';
-      
-     // Додаємо зображення до посилання, а посилання до елемента li
+
         linkElement.appendChild(imageElement);
         listItem.appendChild(linkElement);
 
-     // Додаємо обробник події на кожне посилання для відкриття модального вікна
         linkElement.addEventListener('click', (event) => {
             event.preventDefault();
             openModal(image.original, image.description);
@@ -109,56 +95,32 @@ function createGallery(images) {
         return listItem;
     });
 }
-// Додаємо прослуховування кліка на весь контейнер галереї
-gallery.addEventListener('click', (event) => {
-    // Визначаємо елемент, на якому відбувся клік
-    const target = event.target;
-
-    // Перевіряємо, чи клік відбувся на зображенні
-    if (target.classList.contains('gallery-image')) {
-        // Отримуємо посилання на велике зображення
-        const originalSrc = target.src;
-            }
-});
 
 // Оголошення змінної для екземпляра lightbox
 let lightboxInstance = null;
 
-// Функція для закриття модального вікна
-function closeModal() {
-  modal.style.display = 'none';
-  // Закриваємо lightbox, якщо він існує
-  if (lightboxInstance) {
-    lightboxInstance.close();
-  }
-}
-
-
 function openModal(src, alt) {
-  // Закриваємо попереднє відкрите модальне вікно
-  closeModal();
+    
+    lightboxInstance = basicLightbox.create(`
+        <img src="${src}" alt="${alt}" width="1112" height="640">
+    `, {
+        onShow: (instance) => {
+            window.addEventListener('keydown', onEscKeyPress);
+        },
+        onClose: (instance) => {
+            window.removeEventListener('keydown', onEscKeyPress);
+        }
+    });
 
-  // Оновлюємо атрибут src перед показом нового модального вікна
-  modalImage.src = src;
-
-  // Створюємо новий екземпляр lightbox
-  lightboxInstance = basicLightbox.create(`
-    <img src="${src}" alt="${alt}" width="1112" height="640">
-  `);
-
-  // Показуємо lightbox
-  lightboxInstance.show();
+    lightboxInstance.show();
 }
 
 // Функція для закриття модального вікна 'Escape'
-window.addEventListener('keydown', onEscKeyPress);
-
-        function onEscKeyPress(event) {
-            if (event.key === 'Escape') {
-                lightboxInstance.close();
-             }
-};
-    
+function onEscKeyPress(event) {
+    if (event.key === 'Escape') {
+        lightboxInstance.close();
+    }
+}
 
 // Створюємо галерею та додаємо її до контейнера
 const galleryItems = createGallery(images);
